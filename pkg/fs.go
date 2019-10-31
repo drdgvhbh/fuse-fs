@@ -6,13 +6,14 @@ import (
 
 // FS -- Filesystem
 type FS struct {
-	root Dir
+	root *Dir
 }
 
 // NewFs -- Create a new filesystem
 func NewFs() *FS {
+	iNodeGenerator := NewINodeGenerator(0)
 	return &FS{
-		root: Dir{},
+		root: NewDir(iNodeGenerator.next, iNodeGenerator),
 	}
 }
 

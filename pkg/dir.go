@@ -9,10 +9,20 @@ import (
 )
 
 // Dir implements both Node and Handle for the root directory.
-type Dir struct{}
+type Dir struct {
+	iNode          uint64
+	iNodeGenerator *INodeGenerator
+}
 
-func (Dir) Attr(ctx context.Context, a *fuse.Attr) error {
-	a.Inode = 1
+func NewDir(iNode uint64, iNodeGenerator *INodeGenerator) *Dir {
+	return &Dir{
+		iNode,
+		iNodeGenerator,
+	}
+}
+
+func (d Dir) Attr(ctx context.Context, a *fuse.Attr) error {
+	a.Inode = d.iNode
 	a.Mode = os.ModeDir | 0555
 	return nil
 }
