@@ -8,13 +8,17 @@ import (
 	"bazil.org/fuse/fs"
 )
 
+type INodeGenerator interface {
+	Next() uint64
+}
+
 // Dir implements both Node and Handle for the root directory.
 type Dir struct {
 	iNode          uint64
-	iNodeGenerator *INodeGenerator
+	iNodeGenerator INodeGenerator
 }
 
-func NewDir(iNode uint64, iNodeGenerator *INodeGenerator) *Dir {
+func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 	return &Dir{
 		iNode,
 		iNodeGenerator,

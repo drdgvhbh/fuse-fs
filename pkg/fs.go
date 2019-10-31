@@ -11,7 +11,7 @@ type FS struct {
 
 // NewFs -- Create a new filesystem
 func NewFs() *FS {
-	iNodeGenerator := NewINodeGenerator(0)
+	iNodeGenerator := NewINodeSequentialGenerator(0)
 	return &FS{
 		root: NewDir(iNodeGenerator.next, iNodeGenerator),
 	}

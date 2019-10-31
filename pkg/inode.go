@@ -1,16 +1,16 @@
 package pkg
 
-type INodeGenerator struct {
+type INodeSequentialGenerator struct {
 	next uint64
 }
 
-func NewINodeGenerator(initialINode uint64) *INodeGenerator {
-	return &INodeGenerator{
+func NewINodeSequentialGenerator(initialINode uint64) *INodeSequentialGenerator {
+	return &INodeSequentialGenerator{
 		next: initialINode,
 	}
 }
 
-func (i INodeGenerator) Next() uint64 {
+func (i *INodeSequentialGenerator) Next() uint64 {
 	next := i.next
 	i.next++
 	return next
