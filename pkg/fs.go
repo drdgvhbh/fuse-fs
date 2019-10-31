@@ -4,8 +4,19 @@ import (
 	"bazil.org/fuse/fs"
 )
 
-type FS struct{}
+// FS -- Filesystem
+type FS struct {
+	root Dir
+}
 
-func (FS) Root() (fs.Node, error) {
-	return Dir{}, nil
+// NewFs -- Create a new filesystem
+func NewFs() *FS {
+	return &FS{
+		root: Dir{},
+	}
+}
+
+// Root - The root of the file system
+func (f FS) Root() (fs.Node, error) {
+	return f.root, nil
 }
