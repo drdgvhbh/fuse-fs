@@ -31,6 +31,12 @@ type Dir struct {
 	cTime          time.Time
 }
 
+var (
+	_ = fs.Node(&Dir{})
+	_ = fs.NodeStringLookuper(&Dir{})
+	_ = fs.HandleReadDirAller(&Dir{})
+)
+
 func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 	return &Dir{
 		iNode:          iNode,
