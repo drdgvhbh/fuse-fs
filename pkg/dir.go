@@ -21,10 +21,10 @@ type INodeGenerator interface {
 	Next() uint64
 }
 
-// Dir implements both Node and Handle for the root directory.
 type Dir struct {
 	iNode          uint64
 	iNodeGenerator INodeGenerator
+	mode           os.FileMode
 	size           uint64
 	aTime          time.Time
 	mTime          time.Time
@@ -35,12 +35,14 @@ var (
 	_ = fs.Node(&Dir{})
 	_ = fs.NodeStringLookuper(&Dir{})
 	_ = fs.HandleReadDirAller(&Dir{})
+	_ = fs.NodeSetattrer(&Dir{})
 )
 
 func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 	return &Dir{
 		iNode:          iNode,
 		iNodeGenerator: iNodeGenerator,
+		mode:           os.ModeDir | DirectoryPermission,
 		size:           DefaultSize,
 		aTime:          time.Now(),
 		mTime:          time.Now(),
@@ -51,10 +53,31 @@ func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 func (d Dir) Attr(ctx context.Context, a *fuse.Attr) error {
 	a.Inode = d.iNode
 	a.Size = d.size
-	a.Mode = os.ModeDir | DirectoryPermission
+	a.Mode = d.mode
 	a.Atime = d.aTime
 	a.Mtime = d.mTime
 	a.Ctime = d.cTime
+
+	return nil
+}
+
+func (d *Dir) Setattr(
+	ctx context.Context,
+	req *fuse.SetattrRequest,
+	resp *fuse.SetattrResponse,
+) error {
+	if req.Valid.Mode() {
+		d.mode = req.Mode
+	}
+	if req.Valid.Size() {
+		d.size = req.Size
+	}
+	if req.Valid.Atime() {
+		d.aTime = req.Atime
+	}
+	if req.Valid.Mtime() {
+		d.mTime = req.Mtime
+	}
 
 	return nil
 }
