@@ -8,6 +8,9 @@ import (
 	"bazil.org/fuse/fs"
 )
 
+// DirectoryPermission - Default Directory Permission on most Unix systems
+const DirectoryPermission = 0755
+
 type INodeGenerator interface {
 	Next() uint64
 }
@@ -27,7 +30,7 @@ func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 
 func (d Dir) Attr(ctx context.Context, a *fuse.Attr) error {
 	a.Inode = d.iNode
-	a.Mode = os.ModeDir | 0555
+	a.Mode = os.ModeDir | DirectoryPermission
 	return nil
 }
 
