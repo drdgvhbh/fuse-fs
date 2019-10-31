@@ -29,6 +29,7 @@ type Dir struct {
 	aTime          time.Time
 	mTime          time.Time
 	cTime          time.Time
+	parent         fs.Node
 }
 
 var (
@@ -39,6 +40,12 @@ var (
 )
 
 func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
+	dir := NewDirWithParent(iNode, iNodeGenerator, nil)
+	dir.parent = dir
+	return dir
+}
+
+func NewDirWithParent(iNode uint64, iNodeGenerator INodeGenerator, parent fs.Node) *Dir {
 	return &Dir{
 		iNode:          iNode,
 		iNodeGenerator: iNodeGenerator,
@@ -47,6 +54,7 @@ func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 		aTime:          time.Now(),
 		mTime:          time.Now(),
 		cTime:          time.Now(),
+		parent:         parent,
 	}
 }
 
