@@ -39,7 +39,7 @@ func main() {
 		}
 		defer c.Close()
 
-		err = fs.Serve(c, pkg.FS{})
+		err = fs.Serve(c, pkg.NewFs())
 		if err != nil {
 			return err
 		}
