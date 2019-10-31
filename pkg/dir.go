@@ -8,9 +8,11 @@ import (
 	"bazil.org/fuse/fs"
 )
 
+const (
 // DirectoryPermission - Default Directory Permission on most Unix systems
-const DirectoryPermission = 0755
+	DirectoryPermission os.FileMode = 0755
 
+)
 type INodeGenerator interface {
 	Next() uint64
 }
