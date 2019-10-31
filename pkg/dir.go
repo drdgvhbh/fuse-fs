@@ -3,6 +3,7 @@ package pkg
 import (
 	"context"
 	"os"
+	"time"
 
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
@@ -25,6 +26,9 @@ type Dir struct {
 	iNode          uint64
 	iNodeGenerator INodeGenerator
 	size           uint64
+	aTime          time.Time
+	mTime          time.Time
+	cTime          time.Time
 }
 
 func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
@@ -32,6 +36,9 @@ func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 		iNode:          iNode,
 		iNodeGenerator: iNodeGenerator,
 		size:           DefaultSize,
+		aTime:          time.Now(),
+		mTime:          time.Now(),
+		cTime:          time.Now(),
 	}
 }
 
@@ -39,6 +46,10 @@ func (d Dir) Attr(ctx context.Context, a *fuse.Attr) error {
 	a.Inode = d.iNode
 	a.Size = d.size
 	a.Mode = os.ModeDir | DirectoryPermission
+	a.Atime = d.aTime
+	a.Mtime = d.mTime
+	a.Ctime = d.cTime
+
 	return nil
 }
 
