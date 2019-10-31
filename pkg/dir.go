@@ -30,6 +30,7 @@ type Dir struct {
 	mTime          time.Time
 	cTime          time.Time
 	parent         fs.Node
+	nodes          map[string]fs.Node
 }
 
 var (
@@ -46,7 +47,7 @@ func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 }
 
 func NewDirWithParent(iNode uint64, iNodeGenerator INodeGenerator, parent fs.Node) *Dir {
-	return &Dir{
+	dir := &Dir{
 		iNode:          iNode,
 		iNodeGenerator: iNodeGenerator,
 		mode:           os.ModeDir | DirectoryPermission,
@@ -54,8 +55,16 @@ func NewDirWithParent(iNode uint64, iNodeGenerator INodeGenerator, parent fs.Nod
 		aTime:          time.Now(),
 		mTime:          time.Now(),
 		cTime:          time.Now(),
-		parent:         parent,
+		nodes:          map[string]fs.Node{},
 	}
+	if parent == nil {
+		dir.parent = dir
+	}
+
+	dir.nodes["."] = dir
+	dir.nodes[".."] = dir.parent
+
+	return dir
 }
 
 func (d Dir) Attr(ctx context.Context, a *fuse.Attr) error {
@@ -97,10 +106,25 @@ func (Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	return nil, fuse.ENOENT
 }
 
-var dirDirs = []fuse.Dirent{
-	{Inode: 2, Name: "hello", Type: fuse.DT_File},
-}
+func (d Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
+	var directories []fuse.Dirent
+	for name, dir := range d.nodes {
+		attr := fuse.Attr{}
+		err := dir.Attr(ctx, &attr)
+		if err != nil {
+			return nil, err
+		}
+		var direntType fuse.DirentType = fuse.DT_Unknown
+		if attr.Mode&os.ModeDir == os.ModeDir {
+			direntType = fuse.DT_Dir
+		}
+		dirent := fuse.Dirent{
+			Inode: attr.Inode,
+			Type:  direntType,
+			Name:  name,
+		}
+		directories = append(directories, dirent)
+	}
 
-func (Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
-	return dirDirs, nil
+	return directories, nil
 }
