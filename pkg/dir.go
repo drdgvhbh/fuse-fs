@@ -9,10 +9,13 @@ import (
 )
 
 const (
-// DirectoryPermission - Default Directory Permission on most Unix systems
+	// DirectoryPermission - Default Directory Permission on most Unix systems
 	DirectoryPermission os.FileMode = 0755
 
+	// DefaultSize - The default size in bytes
+	DefaultSize uint64 = 4096
 )
+
 type INodeGenerator interface {
 	Next() uint64
 }
@@ -21,17 +24,20 @@ type INodeGenerator interface {
 type Dir struct {
 	iNode          uint64
 	iNodeGenerator INodeGenerator
+	size           uint64
 }
 
 func NewDir(iNode uint64, iNodeGenerator INodeGenerator) *Dir {
 	return &Dir{
-		iNode,
-		iNodeGenerator,
+		iNode:          iNode,
+		iNodeGenerator: iNodeGenerator,
+		size:           DefaultSize,
 	}
 }
 
 func (d Dir) Attr(ctx context.Context, a *fuse.Attr) error {
 	a.Inode = d.iNode
+	a.Size = d.size
 	a.Mode = os.ModeDir | DirectoryPermission
 	return nil
 }
